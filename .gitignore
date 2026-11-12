@@ -1,0 +1,20 @@
+# Local Python runtime and caches
+/CSDLPT/tmp/runtime/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Temporary report previews and earlier generated reports
+/CSDLPT/tmp/qa/
+/CSDLPT/tmp/render/
+/CSDLPT/tmp/*_v1.docx
+/CSDLPT/tmp/*_v1.pdf
+
+# Local configuration and editor/OS files
+.env
+.env.*
+!.env.example
+~$*
+Thumbs.db
+.DS_Store

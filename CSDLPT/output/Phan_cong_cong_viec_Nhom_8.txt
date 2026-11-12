@@ -1,0 +1,10 @@
+PHÂN CÔNG CÔNG VIỆC NHÓM 8
+
+- Hằng: Lý thuyết, phạm vi hệ thống, lịch bay, định vị dữ liệu, đồng bộ danh mục, dữ liệu thử và tổng hợp báo cáo.
+- Anh: Tác nhân, khách hàng và nhân viên, phân mảnh ngang, đơn tại chi nhánh và kiểm thử chức năng.
+- Dương: Nhân bản dữ liệu, yêu cầu chức năng, ERD, chuẩn hóa, tạo CSDL và đồng bộ báo cáo.
+- Dũng: Giao dịch, quy trình bán vé, đơn và hành khách, phân mảnh dẫn xuất, tái thiết dữ liệu và kiểm thử đồng thời.
+- Tùng: Phục hồi sự cố, quy tắc nghiệp vụ, kho ghế, tính đúng của phân mảnh, giữ chỗ và hoàn vé.
+- Quang: Phân quyền, giao dịch tài chính, chỉ mục, phân mảnh dọc, bảo mật, sao lưu và kiểm thử sự cố.
+- Sang: Yêu cầu chất lượng, kiến trúc hệ thống, xử lý xung đột, môi trường cài đặt, truy vấn liên điểm và đánh giá hiệu năng.
+- Cả nhóm: Lựa chọn công nghệ, chức năng thông minh, rà soát chéo và thuyết trình.

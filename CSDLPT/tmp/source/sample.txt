@@ -1,0 +1,2437 @@
+PAGE 1
+ 
+HỌC VIỆN CÔNG NGHỆ BƯU CHÍNH VIỄN THÔNG
+KHOA CÔNG NGHỆ THÔNG TIN
+------------***------------
+       BÁO CÁO BÀI TẬP LỚN
+HỌC PHẦN: CƠ SỞ DỮ LIỆU PHÂN TÁN
+Chủ đề 6: Hệ thống quản lý bán vé máy bay
+    Giảng viên hướng dẫn: Phan Thị Hà
+    Nhóm thực hiện: Nhóm 6
+                               Sinh viên:
+Đỗ Việt Phương – MSV: B20DCCN519
+Vũ Huyền Thu – MSV: B20DCCN675
+Đỗ Nguyên Phúc – MSV: B20DCCN507
+Lê Công Nam – MSV: B20DCCN447
+Phạm Văn Lực – MSV: B20DCCN411
+Hà Thu Dung – MSV: B20DCCN127
+Lê Xuân Tấn – MSV: B20DCCN591
+Vương Thị Uyên – MSV: B20DCCN716
+Nguyễn Trần Vũ – MSV: B20DCCN747
+Hà Nội, 25 tháng 04 năm 2023
+1
+
+PAGE 2
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+MỤC LỤC
+1.1. Giới thiệu
+3
+1.1.1. Nhu cầu và tầm quan trọng của dự án
+3
+1.1.2. Sơ lược về dự án
+4
+1.2. Vị trí và nhiệm vụ dữ liệu khi triển khai dự án
+5
+1.3. Các đối tượng tham gia sử dụng dự án
+5
+2.1. Các chức năng chính của hệ thống
+6
+2.2. Phân quyền cho các nhóm đối tượng thực hiện dự án
+6
+2.3. Phân tích chức năng của từng vị trí thực hiện dự án
+7
+2.3.1 Tại trụ sở chính Hà Nội
+7
+2.3.2. Tại các chi nhánh
+7
+2.4. Chức năng ở máy trạm và máy chủ
+7
+2.4.1. Chức năng ở máy trạm
+7
+2.4.2. Chức năng ở máy chủ
+9
+2.5. Phân tích CSDL
+10
+2.5.1. Mô hình thực thể E-R, quann hệ
+10
+2.5.2. Bảng tần suất truy cập tại các vị trí
+14
+3.1. Thiết kế hệ thống mạng tổng quan
+16
+3.2. Thiết kế CSDL của hệ thống
+16
+3.2.1. Cấu trúc các bảng dữ liệu của hệ thống
+16
+3.2.2. Mối quan hệ giữa các bảng
+19
+3.3. Thiết kế CSDL phân tán
+20
+3.3.1. Thiết kế lược đồ phục vụ cho phân mảnh ngang dẫn xuất
+20
+3.3.2. Thiết kế lược đồ phục vụ cho phân mảnh ngang nhân bản
+20
+3.3.3. Thiết kế định vị và vẽ sơ đồ định vị
+22
+3.3.4. Thiết kế lược đồ ánh xạ
+24
+3.4.Thiết kế lược đồ nhân bản đồng bộ hoá
+24
+3.5.Thiết kế vật lý các bảng tại các trạm
+25
+4.1. Cài đặt SQL Server 2022 bản developer
+26
+4.2.Cài đặt SQL Server Management Studio Tools (SSMS)
+35
+4.3.Cài đặt tường lửa (firewall) để mở cổng cho SQL
+38
+4.3.1.Tắt tường lửa
+38
+4.3.2. Mở port 1433
+40
+4.3.3.Thêm New Rule: csdpltnhom6
+42
+4.3.4.Thêm New Rule sqlserver
+46
+4.3.5.Thêm New Rule port Udp_1434:
+50
+4.4. Chuẩn bị folder để chứa các dữ liệu trao đổi trong quá trình update dữ liệu từ các
+phân mảnh về cơ sở dữ liệu gốc, và từ cơ sở dữ liệu gốc đến các
+51
+phân mảnh.
+51
+4.5. Kết nối máy trạm và các chi nhánh bằng cách sử dụng phần mềm
+55
+4.5.1. Tải phần mềm Radmin VPN
+55
+4.5.2. Bật TCP IP và thêm IP các máy trạm
+58
+4.5.3. Tạo tài khoản sa (nếu chưa có)
+61
+4.6. Tạo database QLSV
+63
+
+PAGE 3
+ 
+ 
+ 
+ 
+ 
+ 
+4.7. Configure distribution
+68
+4.8. Tạo Publication Database
+76
+4.8.1. Tạo Transactional Replication
+76
+4.8.2.Tạo Merge replication
+82
+4.8.3. Tạo Subscriptions
+96
+5.1 Một số Triggers sử dụng trên máy trạm
+114
+
+PAGE 4
+PHẦN 1: ĐẶT VẤN ĐỀ
+1.1. Giới thiệu
+1.1.1. Nhu cầu và tầm quan trọng của dự án
+Việc cập nhật và lưu trữ các thông tin của khách hàng mua vé mất nhiều thời
+gian và công sức. Khi cần tìm kiếm thông tin về vị khách nào đó hoặc phát hiện và
+sửa chữa các thông tin khi cần thiết rất khó khăn, dễ mắc sai sót và tốn kém nhiều
+thời gian. Các công việc lập vé bán và thống kê số lượng vé… Đều được thực hiện
+bằng tay nên gặp khó khăn trong việc tổng hợp thông tin và dễ sai sót.
+Tin học hóa việc Quản lý hệ thống bán vé máy bay cho hãng hàng không sẽ
+giúp cửa hàng  và các chi nhánh khắc phục được những nhược điểm trên, giúp cho
+việc quản lý được tiến hành đơn giản nhanh chóng, thuận tiện và nâng cao hiệu
+quả công việc.
+Khi có một yêu cầu đề xuất mua vé máy bay từ khách hàng, bộ phận kinh doanh
+sẽ giới thiệu về các loại vé, các chuyến bay đang có. Và sau đó yêu cầu khách hàng
+điền thông tin vào phiếu thông tin gồm: Tên tuổi, năm sinh, số chứng minh thư/số
+hộ chiếu, số điện thoại, loại vé,số lượng vé chuyến bay. Nhân viên phòng kinh
+doanh có nhiệm vụ nhập lại các thông tin lên  hệ thống thông qua phiếu thông tin
+vừa điền của khách hàng. Phòng Kinh doanh có nhiệm vụ tiếp nhận và xử lý,kiểm
+tra các thông tin về hồ sơ nếu không có gì sai sót. Khách hàng sẽ nhận được vé từ
+nhân viên và thanh toán chi phí cho vé.
+Hàng tháng bộ phận kế toán sẽ thống kê lượng vé bán, lượng khách hàng
+trong tháng lên cho bộ phận kế hoạch.  Bộ phận kế toán cũng thống kê doanh thu,
+chi phí, lương nhân viên lên ban quản trị. Bộ phận này cũng là nơi trả lương cho
+nhân viên. Từ đó bộ phận kế hoạch sẽ phân tích chiến lược mới, đưa ra các biện
+pháp để tăng doanh thu, phát triển của công ty.
+Bộ phận nhân sự là nơi tiếp nhận hồ sơ tuyển dụng và quản lý nhân viên
+trong công ty. Khi có nhu cầu thêm nhân viên bộ phận nhân sự sẽ thêm thông tin
+nhân viên: năm sinh, quê quán, địa chỉ, trình độ, số điện thoại, chức vụ. Nếu có sai
+
+PAGE 5
+ 
+ 
+ 
+ 
+sót sẽ chịu trách nhiệm sửa đổi thông tin và có thể xóa thông tin nhân viên khi nhân
+viên nào đó nghỉ việc hoặc bị sa thải.
+Do có rất nhiều chuyến bay nên bộ phận kế hoạch sẽ phải là nơi sắp xếp lịch
+trình bay, phi công cho nhân viên. Quản lý các đường bay, sao cho các máy bay cất
+cánh và hạ cánh không bị trùng trên đường bay. Khi máy bay đã cũ có nhu cầu thay
+mới bộ phận chịu trách nhiệm xóa thông tin máy bay, sửa thông tin máy bay khi
+thông tin có thay đổi, thêm thông tin khi hãng nhập thêm máy bay mới.
+Ban quản trị sẽ theo dõi quá trình làm việc của các bộ phận. Từ các báo cáo
+và thực tế thì ban quản trị sẽ đưa ra những quyết định, chỉ thị cho các bộ phận thực
+hiện.
+1.1.2. Sơ lược về dự án
+-
+Các thông tin về vé máy bay là dữ liệu chung sẽ được cập nhật tại máy chủ.
+-
+Chi nhánh, nhân viên, khách hàng, chuyến bay, máy bay và đường bay là dữ 
+liệu riêng của từng trụ sở và có thể cập nhật tại máy trạm và máy chủ.
+-
+Dự án triển khai với 1 vùng quản lý tại 8 vùng xử lý.
+Trụ sở chính Hà Nội: nơi đặt máy chủ.
++ Chức năng: quản lý dữ liệu toàn hệ thống.
++ Dữ liệu: tất cả dữ liệu.
++ Nguồn dữ liệu: nhân viên trụ sở chính nhập vào và các máy trạm trả về.
++ Dữ liệu được vận chuyển đến các chi nhánh.
++ Đối tượng sử dụng: nhân viên quản lý hệ thống.
+Nghệ An, Hồ Chí Minh, Đà Nẵng, Quảng Ninh, Hải Phòng, Bắc Giang, Huế, 
+Cần Thơ: nơi đặt chi nhánh.
++ Chức năng: quản lý dữ liệu của tất cả các đối tượng của chi nhánh đó.
++ Dữ liệu: các dữ liệu liên quan đến hoạt động kinh doanh của chi nhánh, thông
+tin khách hàng của chi nhánh, nhân viên, thông tin giao dịch, và thông tin dữ 
+liệu chung.
++ Nguồn dữ liệu: nhân viên nhập vào và máy chủ gửi đến. 
++ Dữ liệu vận chuyển đến: máy chủ. 
++ Đối tượng sử dụng: nhân viên chi nhánh, khách hàng.
+-
+Các quyền truy cập của người sử dụng: 
++ Nhân viên trụ sở chính: tất cả các quyền.
++ Nhân viên chi nhánh: đọc, thêm sửa xóa thông tin dữ liệu của chi nhánh mình
+bao gồm: thông tin vé, thông tin nhân viên, thông tin giao dịch, thông tin khách
+hàng.
+
+PAGE 6
+ 
+ 
+ 
++ Khách hàng: đọc thông tin như thông tin cá nhân, thông tin vé, thông tin giao
+dịch.
+1.2. Vị trí và nhiệm vụ dữ liệu khi triển khai dự án
+Dự án triển khai bao gồm: 1 máy chủ, 8 chi nhánh:
+-        Vị trí chi nhánh 1: Server chi nhánh, vị trí đặt tại Nghệ An.
+-        Vị trí chi nhánh 2: Server chi nhánh, vị trí đặt tại Hồ Chí Minh.
+-        Vị trí chi nhánh 3: Server chi nhánh, vị trí đặt tại Đà Nẵng.
+-        Vị trí chi nhánh 4: Server chi nhánh, vị trí đặt tại Quảng Ninh.
+-        Vị trí chi nhánh 5: Server chi nhánh, vị trí đặt tại Hải Phòng.
+-        Vị trí chi nhánh 6: Server chi nhánh, vị trí đặt tại Bắc Giang.
+-        Vị trí chi nhánh 7: Server chi nhánh, vị trí đặt tại Huế.
+-        Vị trí chi nhánh 8: Server chi nhánh, vị trí đặt tại Cần Thơ.
+-        Vị trí tổng: Server tổng, đặt máy chủ tại Hà Nội.
+1.3. Các đối tượng tham gia sử dụng dự án
+-    Khách hàng ( là đối tượng bên ngoài sử dụng hệ thống gián tiếp qua nhân 
+viên)
+     
++ xem thông tin vé
+     
++ mua vé
+     
++ hủy vé
+-        Nhân viên chi nhánh :
++  Quản lý thông tin khách hàng, vé máy bay, máy bay
++ Xem báo cáo thống kê của chi nhánh đó
+-        Quản lý(máy chủ):
++ Quản lý tất cả các dữ liệu của hệ thống, các quyền của đối tượng trên
++ Xem báo cáo của các chi nhánh và thống kê tổng
+PHẦN 2: PHÂN TÍCH
+
+PAGE 7
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+2.1. Các chức năng chính của hệ thống
+-
+Quản lý thông tin chi nhánh: Hệ thống cho phép thêm, sửa, xóa thông tin chi 
+nhánh, quản lý các thông tin về địa chỉ, số điện thoại, giờ làm việc và các thông
+tin khác.
+-
+Quản lý thông tin khách hàng: Hệ thống cho phép thêm, sửa, xóa thông tin 
+khách hàng, quản lý các thông tin về tên, địa chỉ, số điện thoại, email, số 
+CMND/CCCD và các thông tin khác.
+-
+Quản lý thông tin nhân viên: Hệ thống cho phép thêm, sửa, xóa thông tin nhân 
+viên, quản lý các thông tin về tên, địa chỉ, số điện thoại, email, số 
+CMND/CCCD, vị trí, lương và các thông tin khác.
+-
+Quản lý thông tin vé: Hệ thống cho phép thêm, sửa, xóa thông tin vé, quản lý 
+các thông tin về loại vé, số hiệu vé, hạng vé, giá vé và các thông tin khác..
+-
+Quản lý thông tin chuyến bay: Hệ thống cho phép thêm, sửa, xóa thông tin 
+chuyến bay, quản lý các thông tin về số hiệu chuyến bay, ngày giờ khởi hành, 
+ngày giờ đến, mã đường bay và các thông tin khác.
+-
+Quản lý thông tin máy bay: thêm, sửa , xóa số chỗ, mã máy bay, tên máy bay, 
+tên hãng máy bay.
+-
+Thống kê và báo cáo: Hệ thống cho phép thống kê và tạo các báo cáo liên quan 
+đến doanh thu, số lượng vé bán được, số lượng khách hàng, số lượng nhân viên
+và các thông tin khác.
+2.2. Phân quyền cho các nhóm đối tượng thực hiện dự án
+Phân quyền:
+- Nhân viên (tại chi nhánh):
+●Thêm, sửa, xóa thông tin của khách hàng
+●Xem thông tin của vé, chuyến bay
+●Xem báo cáo thống kê của từng trụ sở
+-Khách hàng:
+●Xem thông tin chuyến bay, vé
+●Yêu cầu thêm, sửa, xóa thông tin cá nhân
+-Quản lý (tại máy chủ):
+●Thêm, sửa, xóa thông tin của tất cả dữ liệu.
+●Xem báo cáo, thống kê chung của tất cả các chi nhánh.
+●Truy cập vào dữ liệu có trong hệ thống, cũng như có tất cả các quyền 
+của các đối tượng trên
+
+PAGE 8
+ 
+2.3. Phân tích chức năng của từng vị trí thực hiện dự án
+2.3.1 Tại trụ sở chính Hà Nội
+Quản lý tại trụ sở chính có quyền quản lý tổng thể các thông tin về trụ sở(tên 
+trụ sở, địa chỉ trụ sở),thông tin khách hàng, vé, máy bay, chuyến bay, nhân viên(cụ thể
+có quyền thêm, sửa, xóa, đọc, thông tin).
+2.3.2. Tại các chi nhánh
+Quản lý các thông tin gồm: khách hàng, vé, máy bay, chuyến bay, nhân viên(cụ
+ 
+thể có quyền đọc, thêm, sửa, xóa).
+Dữ liệu về các thông tin của vé, chuyến bay được chuyển từ máy trạm về máy 
+chủ định kỳ hàng tuần.
+Dữ liệu về thông tin khách hàng được cập nhật ở máy trạm sẽ được chuyển về 
+máy chủ sau 1 phút.
+Chỉ được quyền xem thông tin về vé, chi nhánh nhưng ko có quyền chỉnh 
+sửa(quyền chỉnh sửa chỉ có ở trụ sở chính).
+2.4. Chức năng ở máy trạm và máy chủ
+2.4.1. Chức năng ở máy trạm
+  
+Chức năng Quản lý khách hàng
+Giúp các nhân viên có thực hiện các thao tác như thêm, sửa, xóa các thông tin
+của khách hàng. Các thông tin sẽ được lưu trữ trong cơ sở dữ liệu
+Các thông tin quản lý bao gồm:
+-   Mã khách hàng 
+-   Nhập tên khách hàng
+-   Nhập địa chỉ
+-   Nhập số điện thoại
+-   Nhập số CCCD
+Chức năng Quản lý thông tin vé
+Giúp các người quản lý (Admin) của chi nhánh có quyền thực hiện các thao tác
+như thêm, sửa, xóa các thông tin chi tiết của vé. Các thông tin sẽ được lưu trữ trong
+cơ sở dữ liệu
+
+PAGE 9
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Các thông tin quản lý bao gồm:
+-   Mã vé 
+-   Mã chuyến bay 
+- Mã khách hàng
+-   Nhập loại vé
+-   Nhập số lượng vé
+-   Nhập số lượng vé còn
+-   Nhập giá vé
+- Mã nhân viên
+ 
+Chức năng Quản lý máy bay
+Giúp các nhân viên có thực hiện các thao tác như thêm, sửa, xóa các thông tin
+của máy bay. Các thông tin sẽ được lưu trữ trong cơ sở dữ liệu
+Các thông tin quản lý bao gồm:
+-   Mã máy bay
+-   Nhập tên máy bay
+-   Nhập hãng sản xuất của máy bay
+-   Nhập số chỗ của máy bay
+Chức năng Quản lý đường bay
+-
+Mã đường bay
+-
+Chiều dài đường bay
+-
+Điểm xuất phát
+-
+Điểm đến
+-
+Mã máy bay
+ 
+Chức năng Quản lý chuyến bay
+Giúp các nhân viên có thực hiện các thao tác thêm, sửa, xóa thông tin về
+chuyến bay.Các thông tin sẽ được lưu trữ trong cơ sở dữ liệu
+
+PAGE 10
+ 
+ 
+ 
+Các thông tin của chuyến bay bao gồm:
+-   Mã chuyến bay 
+-   Mã máy bay 
+- Nhập đường bay
+-   Nhập thời gian đi
+- Nhập thời gian đến
+ 
+Chức năng Quản lý nhân viên
+Giúp các nhân viên có thực hiện các thao tác thêm, sửa, xóa thông tin nhân
+viên. Các thông tin sẽ được lưu trữ trong cơ sở dữ liệu
+Các thông tin của nhân viên bao gồm:
+-   Mã nhân viên 
+-   Nhập tên nhân viên
+-   Nhập chức vụ
+- Nhập tên đăng nhập
+- Nhập mật khẩu
+2.4.2. Chức năng ở máy chủ
+ 
+Có toàn bộ chức năng của máy trạm :
+-        Chức năng quản lý khách hàng
+-        Chức năng quản lý thông tin vé
+-        Chức năng quản lý máy bay
+-        Chức năng quản lý chuyến bay
+-        Chức năng quản lý nhân viên
+      
+Chức năng quản lý chi nhánh
+ Hệ thống cho phép thêm, sửa, xóa thông tin chi nhánh, quản lý các thông tin 
+về :
+
+PAGE 11
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+-
+Địa chỉ
+-
+Số điện thoại
+-
+Giờ làm việc
+ 
+Chức năng báo cáo thống kê
+Giúp người quản lý biết được thông tin cần thiết của công việc quản lý vé máy 
+bay :
+-        Báo cáo doanh thu trong tháng
+-        Báo cáo số vé bán ra
+-        Báo cáo tình trạng số lượng máy bay
+-        Báo cáo về nhân viên
+ 
+Chức năng phân quyền
+Giúp người quản lý thực hiện phân quyền cho các tài khoản
+Ngoài ra, còn có các chức năng khác như : tìm kiếm, in hóa đơn, danh sách, 
+báo cáo, đổi mật khẩu. Để quản lý việc bán vé được tốt hơn. 
+2.5. Phân tích CSDL
+2.5.1. Mô hình thực thể E-R, quann hệ
+-
+Các thực thể bao gồm: trụ sở, chi nhánh, chuyến bay, máy bay, đường bay, vé 
+bán, khách hàng, nhân viên
+●Thực thể “SANBAY” dùng để lưu trữ thông tin về sân bay:
+Tên trường
+Mô tả
+airport_id
+mã sân bay
+airport_address
+địa chỉ của sân bay
+airport_name
+tên sân bay
+●Thực thể “DUONGBAY” dùng để lưu trữ thông tin về đường bay:
+Tên trường
+Mô tả
+route_id
+mã Đường Bay
+Length
+chiều dài đường bay
+
+PAGE 12
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+depart_location
+điểm xuất phát
+arrive_location
+điểm đến
+●Thực thể “CHUYENBAY” dùng để lưu trữ thông tin về chuyến bay:
+Tên trường
+Mô tả
+flight_id
+mã chuyến bay
+plane_id
+mã máy bay
+route_id
+mã đường bay
+depart_time
+thời gian xuất phát
+arrive_time
+thời gian đến
+Quantity
+số lượng vé
+●Thực thể “MAYBAY” dùng để lưu trữ thông tin về máy bay:
+Tên trường
+Mô tả
+plane_id
+mã máy bay
+plane_name
+tên máy bay
+Manufacture
+tên hãng sản xuất máy bay
+Seat
+số lượng chỗ ngồi trên máy bay
+●Thực thể “NHANVIEN” dùng để lưu trữ thông tin về nhân viên:
+Tên trường
+Mô tả
+employee_id
+mã nhân viên
+airport_id
+mã sân bay
+employee_name
+tên nhân viên
+Position
+chức vụ của nhân viên
+username
+tên đăng nhập của nhân viên trên 
+hệ thống
+Password
+mật khẩu đăng nhập của nhân 
+
+PAGE 13
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+viên trên hệ thống
+●Thực thể “THONGTINVE” dùng để lưu trữ thông tin về vé:
+Tên trường
+Mô tả
+ticket_id
+mã vé
+flight_id
+mã chuyến bay
+customer_id
+mã khách hàng
+ticket_type
+loại vé
+rest_quantity
+số lượng vé còn lại
+employee_id
+mã nhân viên bán vé
+ticket_price
+giá vé
+●Thực thể “KHACHHANG” dùng để lưu trữ thông tin về khách hàng:
+Tên trường
+Mô tả
+customer_id
+mã khách hàng
+customer_name
+tên khách hàng
+customer_address
+địa chỉ của khách hàng
+customer_phone
+số điện thoại
+citizen_id
+số căn cước công dân
+-
+Phân tích lược đồ E-R:
+●NHANVIEN - VE là mối quan hệ một - nhiều vì một nhân viên có thể 
+bán được nhiều vé.
+●KHACHHANG - VE là mối quan hệ một - nhiều vì một khách hàng 
+mua được nhiều vé.
+●CHUYENBAY - VE là mối quan hệ một - nhiều vì nhiều vé có thể có 
+chung 1 chuyến bay.
+●DUONGBAY - CHUYENBAY là mối quan hệ một - nhiều vì một 
+đường bay có thể có nhiều chuyến bay khác nhau thời gian
+●MAYBAY - CHUYENBAY là quan hệ một - nhiều vì một máy bay có 
+thể có nhiều chuyến bay khác nhau thời gian  
+
+PAGE 14
+ 
+ 
+ 
+ 
+●TRUSO - CHINHANH là mối quan hệ một - nhiều vì một trụ sở sẽ có 
+nhiều chi nhánh con
+●CHINHANH - NHANVIEN là mối quan hệ một - nhiều vì một chi 
+nhánh có nhiều nhân viên
+-
+Mô hình thực thể E-R:
+-
+Lược đồ quan hệ:
+
+PAGE 15
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+2.5.2. Bảng tần suất truy cập tại các vị trí
+- R: đọc 
+- W: tạo mới và ghi
+- E: sửa 
+- D: xóa 
+- H: tần suất cao 
+- L: tần suất thấp
+Thực thể
+Trụ sở chính
+Các trạm
+Chuyến bay
+L.WED
+H.R,L.WED
+Máy bay
+H.R,L.WED
+H.R, L.WED
+Đường bay
+L.RWED
+H.R, L.WED 
+Vé bán
+L.RWED
+H.R, L.ED
+Khách Hàng
+H.R, L.WED
+H.RW, L.ED
+Nhân viên
+H.R,L.WED
+H.R, L.WED
+Sân bay
+H.R, L.WED
+H.R, L.WED
+Phân tích:
+-
+Sân bay: 
++
+ở trụ sở chính thì việc đọc với tần suất cao còn việc tạo mới, ghi, sửa 
+hoặc xóa tần suất thấp vì sân bay thường cố định, ít khi thay đổi
++
+ở các trạm việc đọc với tần suất cao còn việc tạo mới và ghi, xóa hoặc 
+sửa với tần suất thấp vì sân bay thường cố định, ít thay đổi
+-
+Nhân viên:
++
+ở trụ sở chính việc đọc thông tin nhân viên với tần suất cao, việc tạo mới
+và ghi, sửa hoặc xóa với tần suất thấp vì thông tin của nhân viên thường 
+cố định ít khi thay đổi hoặc có nhân viên nghỉ làm
++
+ở các trạm việc đọc thông tin nhân viên với tần suất cao, việc tạo mới và
+ghi, sửa hoặc xóa với tần suất thấp vì thông tin nhân viên thường cố 
+định ít khi thay đổi hoặc có nhân viên nghỉ làm
+- Vé:
+
+PAGE 16
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
++
+ở trụ sở chính việc đọc thông tin vé với tần suất cao, việc tạo mới và ghi,
+sửa hoặc xóa với tần suất thấp vì thông tin vé thường cố định ít khi sai 
+sót để chỉnh sửa
++
+ở các trạm việc đọc, tạo mới và ghi với tần suất cao còn việc sửa hoặc 
+xóa với tần suất thấp vì việc xem và tạo các vé máy bay mới là thường 
+xuyên còn ít khi có sự sai sót để chỉnh sửa vé máy bay
+-
+Chuyến bay:
++
+ở trụ sở chính việc đọc, tạo mới và ghi, sửa được thực hiện với tần suất 
+cao vì mỗi đợt cập nhật chuyến bay với khách hàng khác nhau và liên 
+tục tạo mới trong các lần bay. 
++
+ở các trạm việc  đọc, tạo mới và ghi, sửa được thực hiện với tần suất cao
+vì mỗi đợt cập nhật chuyến bay với khách hàng khác nhau và liên tục 
+tạo mới trong các lần bay
+-
+Đường bay:
++
+ở trụ sở chính việc đọc thông tin đường bay với tần suất cao còn việc 
+sửa, tạo, ghi, xóa với tần suất thấp vì số lượng và vị trí đường bay 
+thường cố định
++
+ở các trạm việc đọc thông tin đường bay với tần suất cao còn việc sửa, 
+tạo, ghi, xóa với tần suất thấp vì số lượng và vị trí đường bay thường cố 
+định
+-
+Máy bay:
++
+Tại trụ sở chính việc đọc thông tin máy bay với tần suất cao còn việc 
+sửa, tạo, ghi, xóa với tần suất thấp vì thông tin máy bay thường là cố 
+định ít thay đổi
++
+Tại máy trạm thì việc đọc thông tin đường bay với tần suất cao, việc 
+sửa, xóa, ghi, xóa với tần suất thấp vì thông tin máy bay thường là cố 
+định ít thay đổi
+-
+Khách hàng:
++
+Tại trụ sở chính việc đọc thông tin khách hàng với tần suất cao, còn việc
+sửa, tạo, ghi, xóa với tần suất thấp vì thông tin khách hàng thường thay 
+đổi tại máy trạm.
++
+Tại máy trạm việc đọc, tạo, ghi thông tin khách hàng với tần suất cao, 
+còn việc sửa, xóa với tần suất thấp vì thông tin khách hàng thường cung 
+cấp thông tin chính xác ít sai sót.
+
+PAGE 17
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+PHẦN 3: THIẾT KẾ
+3.1. Thiết kế hệ thống mạng tổng quan
+-Trụ sở chính: Đặt máy Server chính Hà Nội thực hiện các chức năng và lưu 
+CSDL của toàn hệ thống. 
+-Trụ sở chi nhánh Nghệ An: Đặt máy Server trạm 1 và các client tương ứng 
+thực hiện chức năng và lưu toàn bộ CSDL thuộc chi nhánh Nghệ An.
+-Trụ sở chi nhánh Hồ Chí Minh: Đặt máy Server trạm 2 và các client tương 
+ứng thực hiện chức năng và lưu toàn bộ CSDL thuộc chi nhánh Hồ Chí Minh.  
+-Trụ sở chi nhánh Đà Nẵng: Đặt máy Server trạm 3 và các client tương ứng 
+thực hiện chức năng và lưu toàn bộ CSDL thuộc chi nhánh Đà Nẵng.
+-Trụ sở chi nhánh Quảng Ninh: Đặt máy Server trạm 4 và các client tương 
+ứng thực hiện chức năng và lưu toàn bộ CSDL thuộc chi nhánh Quảng Ninh. 
+-Trụ sở chi nhánh Hải Phòng: Đặt máy Server trạm 5 và các client tương ứng 
+thực hiện chức năng và lưu toàn bộ CSDL thuộc chi nhánh Hải Phòng. 
+-Trụ sở chi nhánh Bắc Giang: Đặt máy Server trạm 6 và các client tương ứng 
+thực hiện chức năng và lưu toàn bộ CSDL thuộc chi nhánh Bắc Giang. 
+-Trụ sở chi nhánh Huế: Đặt máy Server trạm 7 và các client tương ứng thực 
+hiện chức năng và lưu toàn bộ CSDL thuộc chi nhánh Huế. 
+-Trụ sở chi nhánh Cần Thơ: Đặt máy Server trạm 8 và các client tương ứng 
+thực hiện chức năng và lưu toàn bộ CSDL thuộc chi nhánh Cần Thơ. 
+-Trụ sở chi nhánh Cà Mau: Đặt máy Server trạm 8 và các client tương ứng 
+thực hiện chức năng và lưu toàn bộ CSDL thuộc chi nhánh Cà Mau        
+-
+Vị trí chi nhánh 1: Server chi nhánh, vị trí đặt tại Nghệ An.
+-
+Vị trí chi nhánh 2: Server chi nhánh, vị trí đặt tại Hồ Chí Minh.
+-
+Vị trí chi nhánh 3: Server chi nhánh, vị trí đặt tại Đà Nẵng.
+-
+Vị trí chi nhánh 4: Server chi nhánh, vị trí đặt tại Quảng Ninh.
+-
+Vị trí chi nhánh 5: Server chi nhánh, vị trí đặt tại Hải Phòng.
+-
+Vị trí chi nhánh 6: Server chi nhánh, vị trí đặt tại Bắc Giang.
+-
+Vị trí chi nhánh 7: Server chi nhánh, vị trí đặt tại Huế.
+-
+Vị trí chi nhánh 8: Server chi nhánh, vị trí đặt tại Cần Thơ.
+-
+Vị trí tổng: Server tổng, đặt máy chủ tại Hà Nội.
+3.2. Thiết kế CSDL của hệ thống
+3.2.1. Cấu trúc các bảng dữ liệu của hệ thống
+Bảng SANBAY
+Tên thuộc tính
+Kiểu
+Ràng buộc
+Khóa 
+Mô tả
+
+PAGE 18
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+airport_id
+nvarchar(10)
+Not null
+PK
+Mã sân bay
+airport_address
+nvarchar(50)
+Not null
+Địa chỉ sân 
+bay
+airport_name
+nvarchar(10)
+Not null
+Tên sân bay
+Bảng DUONGBAY
+Tên thuộc tính
+Kiểu
+Ràng buộc
+Khóa
+Mô tả
+route_id
+nvarchar(10)
+Not null
+PK
+Mã đường bay
+depart_location
+nvarchar(50)
+Not null
+điểm xuất phát
+arrive_location
+nvarchar(50)
+Not null
+điểm đến
+length
+nvarchar(10)
+Null
+Chiều dài
+Bảng CHUYENBAY
+Tên thuộc
+tính
+Kiểu
+Ràng buộc
+Khóa
+Mô tả
+flight_id
+nvarchar(10)
+Not null
+PK
+Mã chuyến bay
+route_id
+nvarchar(10)
+Not null
+FK
+Mã đường bay
+plane_id
+nvarchar(10)
+Not null
+FK
+Mã máy bay
+depart_time
+nvarchar(50)
+Not null
+thời gian khởi 
+hành
+arrive_time
+nvarchar(50)
+Not null
+thời gian đến
+Bảng MAYBAY
+Tên thuộc
+tính
+Kiểu
+Ràng buộc
+Khóa
+Mô tả
+plane_id
+nvarchar(20)
+Not null
+PK
+Mã máy bay
+plane_name
+nvarchar(50)
+Not null
+Tên máy bay
+manufacture
+nvarchar(50)
+Not null
+Hãng
+seat
+Int
+Not null
+Tổng số ghế
+Bảng THONGTINVE
+
+PAGE 19
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Tên thuộc
+tính
+Kiểu
+Ràng buộc
+Khóa
+Mô tả
+ticket_id
+nvarchar(10)
+Not null
+PK
+Mã vé
+customer_id
+nvarchar(10)
+Not null
+FK
+Mã khách hàng
+flight_id
+nvarchar(10)
+Not null
+FK
+Mã chuyến bay
+ticket_type
+nvarchar(30)
+Not null
+Loại vé
+rest_quantity
+Int
+Not null
+Số lượng còn
+employee_id
+nvarchar(10)
+Not null
+FK
+Mã nhân viên 
+bán vé
+ticket_price
+Int
+Not null
+Giá vé
+Bảng KHACHHANG
+Tên thuộc tính
+Kiểu
+Ràng buộc
+Khóa
+Mô tả
+customer_id
+nvarchar(10)
+Nut null
+PK
+Mã khách 
+hàng
+customer_name
+nvarchar(50)
+Nut null
+Tên khách 
+hàng
+customer_phone
+nvarchar(30)
+Nut null
+Số điện thoại
+citizen_id
+nvarchar(30)
+Nut null
+CMND
+customer_address
+nvarchar(50)
+Nut null
+Địa chỉ
+Bảng NHANVIEN
+Tên thuộc tính
+Kiểu
+Ràng
+buộc
+Khóa
+Mô tả
+employee_id
+nvarchar(10)
+Not null
+PK
+Mã nhân viên
+airport_id
+nvarchar(10)
+Not null
+FK
+Mã sân bay
+employee_name
+nvarchar(50)
+Not null
+Tên nhân viên
+position
+nvarchar(30)
+null
+Chức vụ
+employee_address
+nvarchar(30)
+Not null
+Địa chỉ
+username
+nvarchar(30)
+Not null
+Tên đăng nhập
+
+PAGE 20
+ 
+ 
+ 
+password
+nvarchar(30)
+Not null
+Mật khẩu
+3.2.2. Mối quan hệ giữa các bảng
+3.3. Thiết kế CSDL phân tán
+3.3.1. Thiết kế lược đồ phục vụ cho phân mảnh ngang dẫn xuất
+
+PAGE 21
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+3.3.2. Thiết kế lược đồ phục vụ cho phân mảnh ngang nhân bản
+-
+Vị trí 1: Server chi nhánh, vị trí đặt tại Nghệ An.
+-
+Vị trí 2: Server chi nhánh, vị trí đặt tại Hồ Chí Minh.
+-
+Vị trí 3: Server chi nhánh, vị trí đặt tại Đà Nẵng.
+-
+Vị trí 4: Server chi nhánh, vị trí đặt tại Quảng Ninh.
+-
+Vị trí 5: Server chi nhánh, vị trí đặt tại Hải Phòng.
+-
+Vị trí 6: Server chi nhánh, vị trí đặt tại Bắc Giang.
+-
+Vị trí 7: Server chi nhánh, vị trí đặt tại Huế.
+-
+Vị trí 8: Server chi nhánh, vị trí đặt tại Cần Thơ.
+-
+Vị trí 9: Server tổng, đặt máy chủ tại Hà Nội.
+Để phân mảnh, chúng tôi chọn quan hệ tổng thể làm tiêu chí để phân mảnh, 
+phân thành 8 mảnh đặt tại 8 vị trí để quản lý các chi nhánh ở các vùng lân cận, sau đó 
+dựa vào các mảnh của chi nhánh sẽ dẫn xuất đến sự phân mảnh của các quan hệ tổng 
+thể còn lại.
+Mản
+h
+Trụ sở
+Cơ sở dữ 
+liệu
+Phân mảnh ngang nguyên 
+thủy
+Phân mảnh ngang dẫn xuất
+1
+Nghệ An
+Quản lý bán 
+vé máy bay 
+Nghệ An 
+- Bảng phân mảnh: 
+Airport
+- Điều kiện phân tán: 
+AirportNgheAn = 
+σID=‘TSNA’(Airport) 
+- Bảng phân mảnh: Employee
+- Điều kiện dẫn xuất: 
+Employee1 = 
+Employee⋈  
+AirportNgheAn 
+- Bảng phân mảnh: Ticket
+- Điều kiện dẫn xuất: 
+Ticket1=Ticket Employee1
+⋈
+2
+Hồ Chí 
+Minh
+Quản lý bán 
+vé máy bay
+- Bảng phân mảnh: 
+Airport
+- Điều kiện phân tán:
+AirportHoChiMinh = 
+σID=‘TSHCM’(Airport) 
+- Bảng phân mảnh: Employee
+- Điều kiện dẫn xuất: 
+Employee2 = Employee⋈ 
+AirportHoChiMinh 
+- Bảng phân mảnh: Ticket
+- Điều kiện dẫn xuất: 
+Ticket2=Ticket Employee2
+⋈
+3
+Đà Nẵng
+Quản lý bán 
+vé máy bay
+- Bảng phân mảnh: 
+Airport
+- Điều kiện phân tán:
+AirportHoChiMinh = 
+σID=‘TSDN’(Airport) 
+- Bảng phân mảnh: Employee
+- Điều kiện dẫn xuất: 
+Employee3=Employee⋈  
+AirportDaNang
+
+PAGE 22
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+- Bảng phân mảnh: Ticket
+- Điều kiện dẫn xuất: 
+Ticket3=Ticket Employee3
+⋈
+4
+Quảng 
+Ninh
+Quản lý bán 
+vé máy bay
+- Bảng phân mảnh: 
+Airport
+- Điều kiện phân tán:
+AirportQuangNinh = 
+σID=‘TSQN’(Airport) 
+- Bảng phân mảnh: Employee
+- Điều kiện dẫn xuất: 
+Employee4=Employee⋈  
+AirportQuangNinh
+- Bảng phân mảnh: Ticket
+- Điều kiện dẫn xuất: 
+Ticket4=Ticket Employee4
+⋈
+5
+Hải Phòng
+Quản lý bán 
+vé máy bay
+- Bảng phân mảnh: 
+Airport
+- Điều kiện phân tán:
+AirportHaiPhong = 
+σID=‘TSHP’(Airport) 
+- Bảng phân mảnh: Employee
+- Điều kiện dẫn xuất: 
+Employee5=Employee⋈  
+AirportHaiPhong
+- Bảng phân mảnh: Ticket
+- Điều kiện dẫn xuất: 
+Ticket5=Ticket Employee5
+⋈
+6
+Bắc Giang
+Quản lý bán 
+vé máy bay
+- Bảng phân mảnh: 
+Airport
+- Điều kiện phân tán:
+AirportBacGiang = 
+σID=‘TSBG’(Airport) 
+- Bảng phân mảnh: Employee
+- Điều kiện dẫn xuất: 
+Employee6=Employee⋈  
+AirportBacGiang
+- Bảng phân mảnh: Ticket
+- Điều kiện dẫn xuất: 
+Ticket6=Ticket Employee6
+⋈
+7
+Huế
+Quản lý bán 
+vé máy bay
+- Bảng phân mảnh: 
+Airport
+- Điều kiện phân tán:
+AirportHue = 
+σID=‘TSH’(Airport) 
+- Bảng phân mảnh: Employee
+- Điều kiện dẫn xuất: 
+Employee7=Employee⋈  
+AirportHue
+- Bảng phân mảnh: Ticket
+- Điều kiện dẫn xuất: 
+Ticket7=Ticket Employee7
+⋈
+8
+Cần Thơ
+Quản lý bán 
+vé máy bay
+- Bảng phân mảnh: 
+Airport
+- Điều kiện phân tán:
+- Bảng phân mảnh: Employee
+- Điều kiện dẫn xuất: 
+Employee8=Employee⋈  
+
+PAGE 23
+ 
+AirportCanTho = 
+σID=‘TSCT’(Airport) 
+AirportCanTho
+- Bảng phân mảnh: Ticket
+- Điều kiện dẫn xuất: 
+Ticket8=Ticket Employee8
+⋈
+3.3.3. Thiết kế định vị và vẽ sơ đồ định vị
+Phân mảnh ngang nguyên thủy và phân mảnh ngang dẫn xuất để chia quan hệ 
+tổng thể thành 8 mảnh đặt tại 8 chi nhánh sau:
+- Server chính đặt tại Hà Nội chứa thông tin của toàn bộ hệ thống: Airport(sân 
+bay), Employee(nhân viên), Ticket(vé máy bay), Flight(chuyến bay), Route(Đường 
+bay), Plane(máy bay), Customer(khách hàng) 
+- Trụ sở đào tạo 1: Máy trạm 1 đặt tại Nghệ An chứa thông tin của chi nhánh 
+đó; Các Airport(sân bay), Employee(nhân viên), Ticket(vé máy bay), Flight(chuyến 
+bay), Route(Đường bay), Plane(máy bay), Customer(khách hàng) của chi nhánh đó. 
+- Trụ sở đào tạo 2: Máy trạm 1 đặt tại Hồ Chí Minh chứa thông tin của chi 
+nhánh đó; Các  Airport(sân bay), Employee(nhân viên), Ticket(vé máy bay), 
+Flight(chuyến bay), Route(Đường bay), Plane(máy bay), Customer(khách hàng) của 
+chi nhánh đó. 
+- Trụ sở đào tạo 3: Máy trạm 1 đặt tại Đà Nẵng chứa thông tin của chi nhánh 
+đó; Các  Airport(sân bay), Employee(nhân viên), Ticket(vé máy bay), Flight(chuyến 
+bay), Route(Đường bay), Plane(máy bay), Customer(khách hàng) của chi nhánh đó. 
+- Trụ sở đào tạo 4: Máy trạm 1 đặt tại Quảng Ninh chứa thông tin của chi 
+nhánh đó; Các  Airport(sân bay), Employee(nhân viên), Ticket(vé máy bay), 
+Flight(chuyến bay), Route(Đường bay), Plane(máy bay), Customer(khách hàng) của 
+chi nhánh đó.
+- Trụ sở đào tạo 5: Máy trạm 1 đặt tại Hải Phòng chứa thông tin của chi nhánh
+đó; Các  Airport(sân bay), Employee(nhân viên), Ticket(vé máy bay), Flight(chuyến 
+bay), Route(Đường bay), Plane(máy bay), Customer(khách hàng) của chi nhánh đó. 
+- Trụ sở đào tạo 6: Máy trạm 1 đặt tại Bắc Giang chứa thông tin của chi nhánh
+đó; Các Airport(sân bay), Employee(nhân viên), Ticket(vé máy bay), Flight(chuyến 
+bay), Route(Đường bay), Plane(máy bay), Customer(khách hàng) của chi nhánh đó. 
+- Trụ sở đào tạo 7: Máy trạm 1 đặt tại Huế chứa thông tin của chi nhánh đó; 
+Các  Airport(sân bay), Employee(nhân viên), Ticket(vé máy bay), Flight(chuyến bay),
+Route(Đường bay), Plane(máy bay), Customer(khách hàng) của chi nhánh đó. 
+- Trụ sở đào tạo 8: Máy trạm 1 đặt tại Cần Thơ chứa thông tin của chi nhánh 
+đó; Các  Airport(sân bay), Employee(nhân viên), Ticket(vé máy bay), Flight(chuyến 
+bay), Route(Đường bay), Plane(máy bay), Customer(khách hàng) của chi nhánh đó. 
+
+PAGE 24
+ 
+3.3.4. Thiết kế lược đồ ánh xạ
+3.4.Thiết kế lược đồ nhân bản đồng bộ hoá
+-
+Thông tin tại máy chủ: Các Airport(sân bay), Flight(chuyến bay), Route(Đường
+bay), Plane(máy bay) tại máy chủ sẽ được nhân bản tại các máy trạm (đồng bộ
+hóa về máy trạm mỗi khi có sự thay đổi từ máy chủ). Nhân bản có thể thực thi
+
+PAGE 25
+ 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+giữa những CSDL trên cùng một server hay những server khác nhau được kết
+nối bởi mạng LANs,WANs hay Internet.
+-
+Nếu tại máy chủ có sự cập nhật thông tin Employee(nhân viên),
+Customer(khách hàng), Ticket(vé máy bay) thì sẽ được đồng bộ hóa về trụ sở
+nó thuộc về.
+-
+Thông tin tại máy trạm: Employee (nhân viên), Customer (khách hàng), Ticket
+(vé máy bay) được cập nhật thì sẽ được đồng bộ hóa về máy chủ mỗi khi có
+thông tin.
+3.5.Thiết kế vật lý các bảng tại các trạm
+STT
+Tên bảng
+Ý nghĩa
+1
+dbo.Airport
+Sân bay, chứa thông tin liên 
+quan đến sân bay phục vụ 
+cho công tác quản lý sân 
+bay
+2
+dbo.Flight
+Chuyến bay, chứa thông tin 
+liên quan đến chuyến bay 
+bay phục vụ cho công tác 
+quản lý chuyến bay
+3
+dbo.Route
+Đường bay, chứa thông tin 
+liên quan đến đường bay 
+phục vụ cho công tác quản 
+lý đường bay
+4
+dbo.Plane
+Máy bay, chứa thông tin 
+liên quan đến máy bay phục
+vụ cho công tác quản lý 
+máy bay
+5
+dbo.Ticket
+Vé, chứa thông tin liên quan
+đến vé phục vụ cho công tác
+quản lý vé
+6
+dbo.Customer
+Khách hàng, chứa thông tin 
+liên quan đến khách hàng 
+phục vụ cho công tác quản 
+lý khách hàng
+7
+dbo.Employee
+Nhân viên, chứa thông tin 
+liên quan đến nhân viên 
+phục vụ cho công tác quản 
+lý nhân viên
+
+PAGE 26
+PHẦN 4: CÀI ĐẶT
+4.1. Cài đặt SQL Server 2022 bản developer
+Cài đặt SQL Server 2022 Developer:
+Truy cập đường link để tải (tải bản developer)
+https://www.microsoft.com/en-us/sql-server/sql-server-downloads
+Chạy file .exe sau khi tải về.
+
+PAGE 27
+Chọn vào phần Download Media
+Chọn mở tệp .iso và chạy file setup.exe
+
+PAGE 28
+Giao diện cài đặt hiện lên, chọn Installation sau đó chọn tiếp New SQL server ...
+
+PAGE 29
+Trong giao diện SQL Server 2022 Setup, tiếp tục cài đặt như hình sau:
+Specify a free edition: chọn Developer sau đó nhấn Next 
+
+PAGE 30
+Xác nhận đồng ý với các điều khoản sau đó nhấn Next
+
+PAGE 31
+Tại đây ta thấy Passed:4 và Warning:1 thì cho thấy đang gặp lỗi ở Windows 
+Firewwall( tường lửa) nên ở phần sau chúng ta sẽ giải quyết về vấn đề tường lửa.
+Tại đây để trống ô Azure Extension for SQL Server sau đó nhấn Next 
+
+PAGE 32
+Tại đây ta chọn các chức năng cần thiết cho bài thực hành cơ sở dữ liệu phân tán 
+này sau đó nhấn Next 
+Đặt Named instance và Instance ID là “CSDLPTNHOM6” (tên có thể đặt tùy ý, 
+không dấu, không khoảng trắng) sau đó nhấn Next 
+Tại SQL Server Browser chuyển sang Automatic sau đó tích vào ô trống và nhấn
+Next 
+
+PAGE 33
+Chọn Mixed Mode (SQL Server authentication and Windows authentication)
+Thiết lập mật khẩu cho administrator (sa) account.
+ Nhấn Add Current User để thêm tài khoản sau đó nhấn Next 
+Chọn Install để tải các chức năng đã chọn.
+
+PAGE 34
+Màn hình hiện lên đã tải thành công sau đó nhấn close
+
+PAGE 35
+ 
+4.2.Cài đặt SQL Server Management Studio Tools (SSMS)
+Giới thiệu : SSMS là một ứng dụng phần mềm thiết kế bởi Microsoft, ra mắt lần đầu 
+năm 2005. Ứng dụng này cho phép lập trình viên cấu hình, quản lý và quản trị bộ máy
+cơ sở dữ liệu (database engine) SQL Server. SSMS phổ biến và được sử dụng rộng rãi
+trong cộng đồng lập trình viên và quản trị viên cơ sở dữ liệu bởi những ưu điểm
+-Miễn phí
+-Trải nghiệm người dùng tốt
+-Nhiều lựa chọn add-in
+-Dễ cài đặt
+ Click vào Install SQL Server Management Tools
+Hoặc ấn vào đường link để cài đặt:
+https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-
+studio-ssms?view=sql-server-ver16
+Tại trang chủ chọn Free Download for SQL Server Management Studio (SSMS) 
+19.0.2
+
+PAGE 36
+Vào thư mục Download chọn SSMS-Setup-ENU
+Giao diện hiện ra có thể thay đổi Location sau đó nhấn Install
+
+PAGE 37
+Giao diện hiện ra cài đặt thành công chọn Restart hoặc Close 
+
+PAGE 38
+4.3.Cài đặt tường lửa (firewall) để mở cổng cho SQL
+Giới thiệu : Tường lửa hay firewall là một hệ thống bảo mật mạng giám sát và
+kiểm soát lưu lượng mạng đến và đi dựa trên các quy tắc bảo mật được xác định
+trước. Một tường lửa thường thiết lập một rào cản giữa một mạng nội bộ đáng tin
+cậy và mạng bên ngoài không tin cậy, chẳng hạn như Internet.
+4.3.1.Tắt tường lửa
+Tìm kiếm Firewall trong thanh công cụ
+Chọn Turn Windows Defender Firewall on or off 
+
+PAGE 39
+Thực hiện tắt tường lửa -> chọn Turn off Windows Defender Firewall ở cả 2 mục -
+> nhấn OK
+Giao diện hiện ra cho thấy tường lửa được tắt thành công 
+Chú ý : Nếu như không tắt được tường lửa thì có thể là bạn đang chạy trình duyệt 
+diệt virus . Hãy xóa / tắt trình duyệt diệt virus đi thì mới tắt được tường lửa
+
+PAGE 40
+4.3.2. Mở port 1433
+Mục đích : Theo mặc định, SQL Server sử dụng Cổng TCP 1433 để giao tiếp với 
+các ứng dụng. Nếu ta đang chạy một ứng dụng yêu cầu kết nối với SQL Server, ta 
+phải bật cổng 1433 cho SQL Server để kết nối. Sau đây là các bước để mở port 
+1433
+Trong thanh tìm kiếm, tìm SQL Server 2022 Configuration Manager
+Chọn SQL Server Network Configuration + Protocols for CSDLPTNHOM6
+
+PAGE 41
+Nhấn chuột phải vào TCP/IP chọn Properties
+    Nhấn IP Addresses, lướt xuống dòng cuối cùng IPAll và chọn TCP Port là 1433
+Chọn SQL Server Sevices và Restart lại Server đã config và resta
+rt 
+
+PAGE 42
+Chọn restart.
+4.3.3.Thêm New Rule: csdpltnhom6
+Mục đích: Để mở một cổng 1433 trong tường lửa Windows để truy cập TCP
+Trong thanh tìm kiếm, tìm Windows Defender Firewall with Advanced Security 
+sau đó chọn open
+
+PAGE 43
+Giao diện Windows Defender Firewall with Advanced Security hiện ra chọn 
+Inbound Rules sau đó chọn New Rule
+Rule Type chuyển sang Port => Chọn Next
+
+PAGE 44
+Chọn specific local ports + cổng 1433 -> ấn Next
+Tiếp đến ta Chọn Allow the connection (theo mặc định) rồi ấn Next
+Chọn tất cả và bấm next
+
+PAGE 45
+Thực hiện đặt tên nhóm (CSDLPTNHOM6) -> ấn Finish
+Đã hoàn thành bước thức hiện cài đặt = > Cài đặt thành công
+
+PAGE 46
+4.3.4.Thêm New Rule sqlserver
+Mục đích: Để mở quyền truy cập vào SQL Server khi sử dụng cổng động 
+(dynamic ports)
+Trong mục Rule Type, chọn Program -> ấn Next
+Chọn mục This program path và ấn Browse để chọn file thích hợp
+Tìm file name sqlservr sau đó nhấn open
+
+PAGE 47
+Giao diện hiện ra với đường dẫn là: 
+%ProgramFiles%\Microsoft SQL Server\MSSQL16.CSDLPTNHOM6\MSSQL\
+Binn\sqlservr.exe
+Sau đó chọn Next 
+
+PAGE 48
+Đặt tên cho name mới là sqlserver
+Giao diện hiện ra sqlserver cho thấy cài đặt thành công
+
+PAGE 49
+4.3.5.Thêm New Rule port Udp_1434:
+Mục đích: Để mở một cổng 1434 trong tường lửa Windows để truy cập UDP
+Tương tự Chọn mục Protocol and Ports -> chọn UDP và local ports : 1434 -> ấn 
+Next 
+Đặt tên udp1434 -> Finish
+Giao diện hiện ra udp1434 cho thấy cài đặt thành công
+
+PAGE 50
+4.4. Chuẩn bị folder để chứa các dữ liệu trao đổi trong quá trình update 
+dữ liệu từ các phân mảnh về cơ sở dữ liệu gốc, và từ cơ sở dữ liệu gốc đến các
+phân mảnh.
+REPLDATA
+Tạo 1 folder C:\REPLDATA để chứa các dữ liệu trao đổi trong quá trình 
+update dữ liệu từ các phân mảnh về cơ sở dữ liệu gốc, và từ cơ sở dữ liệu gốc đến các 
+phân mảnh.
+
+PAGE 51
+Chọn tab Sharing > Share. 
+
+PAGE 52
+Chọn Everyone > click Add
+Chọn quyền Read/Write như trong hình.
+Click nút lệnh Share
+
+PAGE 53
+\\Vq\repldata : Vq là tên của máy nhấn Done -> kết quả cuối cùng của khi hoàn thành 
+được hết tất cả các bước phần cài đặt thì folder sẽ gồm: 
+
+PAGE 54
+4.5. Kết nối máy trạm và các chi nhánh bằng cách sử dụng phần mềm
+cài đặt VPN Radmin VPN
+4.5.1. Tải phần mềm Radmin VPN
+Giới thiệu: phần mềm Radmin VPN là phần mềm dùng để tạo mạng riêng ảo 
+(VPN). Cho phép thiết lập kết nối bảo mật giữa các máy tính qua internet như thể 
+các máy tính này kết nối với nhau trên mạng LAN.
+Cài đặt phần mềm Radmin VPN, theo link dưới:
+https://www.radmin-vpn.com/
+Chọn Free Download để tải Radmin về
+
+PAGE 55
+Tạo Network cho máy chủ.
+
+PAGE 56
+Các máy trạm sẽ kết nối với nhau và kết nối với máy chủ bằng VPN này. Sau khi 
+đã kết nối ta có giao diện như trên.
+Kiểm tra kết nối bằng cách chuột phải vào thành viên và click ping
+Và kết quả ra như hình sau nghĩa là hai máy đã kết nối với nhau thành công
+
+PAGE 57
+4.5.2. Bật TCP IP và thêm IP các máy trạm
+Mở Sql Server Configuration Manager để cấu hình IP cho từng máy.
++ TCP/IP : Enable
++ Named Pipes: Disable
+Chuột phải vào TCP/IP chọn Properties
+Mở TCP/IP > IP Addresses
+Cài đặt các IP như sau:
++ Active: Yes
++ Enable: Yes
++ Tất cả các TCP Port: 1433
+IP1: 26.96.17.211 -> là IP máy chủ
+Các IP còn lại đều là máy trạm.
+
+PAGE 58
+ Restart lại server
+
+PAGE 59
+4.5.3. Tạo tài khoản sa (nếu chưa có)
+ Chạy SQL Server Management Studio và login bằng Windows Authentication 
+như thông thường.
+Tìm đến Security > Logins > sa
+
+PAGE 60
+Click chuột phải chọn Properties
+Vào General để đổi mật khẩu -> B‘ check Enforce password policy
+
+PAGE 61
+Sang chọn mục Status -> các mục như dưới hình -> ấn Ok
+4.6. Tạo database QLSV
+Tạo DB
+
+PAGE 62
+C:\Program Files\Microsoft SQL Server\MSSQL16.CSDLPTNHOM6\MSSQL\
+DATA
+Thêm dữ liệu:
+Dữ liệu các bảng :
+1. Bảng airport
+
+PAGE 63
+2. Bảng employee
+3. Bảng customer
+
+PAGE 64
+4. Bảng route
+5. Bảng plane
+
+PAGE 65
+6. Bảng flight
+7. Bảng ticket
+
+PAGE 66
+ 
+4.7. Configure distribution
+- 
+Distributor: Là một server mà chứa CSDL phân tán (distribution database) và 
+lưu trữ metadata, history data và transaction. SQL Server sử dụng CSDL phân tán 
+để lưu và chuyển(store_and_forward) dữ liệu nhân bản từ Publisher đến các 
+Subscriber. Có 2 loại Distributor : Local Distributor và remote Distributor.
+1.Đăng nhập và bật SQL Server Agent
+Mở SQL Server và thực hiện việc đăng nhập
+Sau khi đăng nhập, chọn mục SQL Server Agent-> Click chuột phải ->Chọn start
+
+PAGE 67
+Tiếp tục ấn Yes để thực hiện bật Server Agent
+2.Confiruge distribution
+
+PAGE 68
+Sau khi chạy Agent,tiếp theo chọn mục Replication ->Click chuột phải chọn
+Configure Distribution
+Tiếp tục thực hiện các thao tác Next đến Snapshot Folder
+
+PAGE 69
+
+PAGE 70
+Điền đường dẫn của folder REPTDATA tạo trước đó -> ấn Next
+
+PAGE 71
+Chọn 2 mục như dưới -> ấn Next
+
+PAGE 72
+Chọn các mục tương ứng sau đây (không bắt buộc y hệt) -> ấn Next
+
+PAGE 73
+Cuối cùng ấn Finish để hoàn thành Configure
+-Đ‘ 2 chỗ trên là không sao , do không cho SQL Server Agent tự động chạy mỗi khi 
+mở
+SQL Server nên mới báo lỗi,tuy nhiên đến bước này là config thành công rồi.
+
+PAGE 74
+ 
+4.8. Tạo Publication Database 
+- 
+Replication – Nhân bản dữ liệu: Replication là công nghệ sao chép, phân phối 
+dữ liệu và là một trong những giải pháp ‘khôi phục dữ liệu sau thảm họa’ có sẵn trong
+SSMS rất hữu ích để duy trì bản sao thứ hai hoặc bản sao dự phòng của các đối tượng 
+(Table, View, Stored Procedure) và CSDL.
+Replication trong Microsoft SQL Server có 4 loại sau:
++Snapshot Replication
++Transactional Replication
++Peer-to-Peer Replication
++Merge Replication
+4.8.1. Tạo Transactional Replication
+Giới thiệu : Nhân bản giao dịch một chiều là một kỹ thuật được sử dụng để sao 
+chép tự động liên tục hoặc định kỳ các dữ liệu giao dịch (Transaction Data) một chiều 
+từ Publisher đến Subscriber.
+Trong mục Replication tìm tới Local Publications . Chuột phải vào Local
+Publication -> chọn New Publication… 
+Cửa sổ New Publication Wizard hiện lên. Chọn Database chứa các bảng muốn
+nhân bản. Click next
+
+PAGE 75
+Chọn Transactional publication để cho phép nhân bản -> Chọn Next
+
+PAGE 76
+Mở rộng mục table để xem các bảng có trong database. Tích vào bảng muốn nhân 
+bản, ở đây là bảng airport, customer, employee, flight, plane, route . Tích chọn -> 
+click next
+Tích chọn “Create a snapshot immediately and keep the snapshot availble to
+
+PAGE 77
+initialize subscriptions”. Click next
+Chọn Security Settings..
+Tích chọn “Run under the SQL Server Agent service account” và “Using the
+
+PAGE 78
+following SQL Server login:”. Sau đó nhập tài khoản mật khẩu sa (mà nhóm đã 
+thống nhất từ trước):
+Login: sa
+Password: 1234568
+Tích chọn “Create the publication”. Click Next
+
+PAGE 79
+Đặt tên cho nhân bản muốn tạo ra trong ô Publication Name, ở đây là vemaybay. 
+Click “Finish”
+Thông báo tạo nhân bản thành công
+
+PAGE 80
+ 
+Refresh lại Local Publication để check lại xem đã có vemaybay chưa. Ở đây chúng 
+ta đã tạo nhân bản vemaybay thành công 
+4.8.2.Tạo Merge replication
+ - 
+Merge replication cho phép nhiều server làm việc độc lập (online hay ofline) 
+sau đó hợp nhất dữ liệu đã thay đổi lại dựa vào độ ưu tiên, thời điểm chỉnh sửa hoặc
+do người dùng tự quy định. Subscriber sẽ đồng bộ với publisher khi được kết nối 
+vào mạng và sẽ chuyển giao tất cả các row đã thực hiện thay đổi giữa publisher và 
+subscriber kể từ lần đồng bộ cuối cùng. 
+- Merge replication thường được dùng trong các trường hợp sau:
+    +Nhiều subscriber cập nhật cùng một dữ liệu nhiều lần và muốn phân phối 
+những thay đổi đó tới publisher và các subscriber khác +Subscriber có nhu cầu 
+nhận dữ liệu, thay đổi dữ liệu offline, sau đó đồng bộ hóa những thay đổi tới 
+publisher và các subscriber khác 
+   +Mỗi subscriber yêu cầu một phân vùng dữ liệu khác nhau 
+ Click chuột phải vào Local Publication. Chọn New Publication 
+
+PAGE 81
+
+PAGE 82
+chọn next
+Chọn database muốn phân mảnh. Click Next 
+
+PAGE 83
+Chọn Merge publication để thực hiện phân mảnh -> Click Next
+Tích “SQL Server 2008 or later”. Click Next
+
+PAGE 84
+Dựa theo quan hệ, lựa chọn các bảng muốn phân mảnh. Ở đây là employee và 
+ticket. Còn lại do là bảng chung ở tất cả các chi nhánh cũng như đã nhân bản nên ta 
+sẽ không chọn
+Click Next 
+Click Add. Chọn Add Filter
+
+PAGE 85
+Tạo phân mảnh ngang nguyên thủy
+Ta sẽ phân mảnh từ bảng airport đổ xuống. Ở Select the table to filter lựa chọn
+headquarter -> Nháy đúp vào ID -> từ “ WHERE [ID] “ ta nhập thêm “=’SBCT’” -
+> Click
+Next
+Sau airport ta sẽ phân mảnh các bảng liên quan. Chọn “Add join to Extend…”
+
+PAGE 86
+ở Joined table ta sẽ chọn department. Click employee
+employee đã được thêm vào
+Chọn Add -> Add Join to Extend..
+
+PAGE 87
+Ở Joined table ta sẽ chọn ticket. Click OK
+chọn Add -> Add Join to Extend..
+
+PAGE 88
+Tích “Create a snapshot immediately” và “Schedule the Snapshot…” (không bắt 
+buộc ) -> Click Next 
+Chọn Security Settings….
+
+PAGE 89
+Tích chọn “Run under the SQL Server Agent service account” và “Using the 
+following SQL Server login:”. Sau đó nhập tài khoản mật khẩu sa (mà nhóm đã 
+thống nhất từ trước): 
+Login: sa 
+Password: 12345678
+chọn Next
+
+PAGE 90
+Tích chọn “Create the publication” và “Generate a script …” -> Click Next
+ Tích chọn “Overwrite the existing file” và “International text” -> Click Next
+
+PAGE 91
+Đặt tên phân mảnh tại ô Publication name -> Click Finish
+Thông báo phân mảnh thành công 
+
+PAGE 92
+Refresh lại Local Publications để check xem đã có phân mảnh vừa tạo chưa. 
+Làm tương tự được phân mảnh các trụ sở khác. 
+
+PAGE 93
+Sau khi được thì chú ý phải view snapshot cho publication đó
+Nếu như này thì sẽ thành công 
+
+PAGE 94
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+4.8.3. Tạo Subscriptions 
+1. Cần có thông tin nick các máy trạm để tạo sub
+TÊN SERVER
+ĐỊA ĐIỂM
+Tấn
+DESKTOP-6JP6S45\CSDLNHOM6
+MÁY CHỦ
+Vũ
+VUNGUYENTRAN\CSDLPT_TEST SBBG
+Lực
+DESKTOP-PM7L3F7\CSDLPTNHOM6 SBCT
+Phương
+EMPHUONG\CSDLPT06_PHUONG SBDN
+Phúc
+LAGGER\CSDLPT06_EMPHUC SBH
+Nam NAMLC\CSDLPT06_NAM
+SBHCM
+Uyên VQ\CSDLPTNHOM6
+SBHP
+Thu
+DESKTOP-QOHRTQI\CSDLPT06_THU SBNA
+Dung SBQN
+2. Tạo Subscriptions 
+ Chuột phải vào mảnh và chọn New Subscriptions -> bảng New Subscription 
+Wizard hiện ra chọn next
+
+PAGE 95
+
+PAGE 96
+chọn database và publication
+Tại bảng Merge Agent Location chọn “Run all agents the Distributor,...”
+
+PAGE 97
+Chọn “Next” “Finish”
+ Đăng nhập tài khoản để kết nối Server
+
+PAGE 98
+
+PAGE 99
+Chọn tên server của máy cần phân mảnh đến
+
+PAGE 100
+Nhập login + mk
+Tại subscribers cài đặt Subscription Database chọn “New database” tương ứng
+
+PAGE 101
+
+PAGE 102
+Trong Merge Agent Security tích chọn các nút như hình và đăng nhập tài khoản 
+vào connect to the subscriber -> click “Ok”
+
+PAGE 103
+“Next” -> set “Agent Schedule” là Run continuously 
+Chọn “Next” và set up tiếp như ảnh bên dưới
+
+PAGE 104
+ Tiếp tục chọn “Next” 
+Tiếp tục chọn “Next” và tích chọn Create the subsripstion
+
+PAGE 105
+Chọn “Next” và “Finish”
+
+PAGE 106
+Lúc này database bên máy trạm đã nhận được thông tin bảng và dữ liệu bảng.
+Nhưng ở đây bị thiếu các bảng còn lại nên ta thêm bảng nhân bản vào nữa:
+ Chọn “New Subscriptions”
+
+PAGE 107
+Chọn vemaybay
+Chọn Run all…., sau đó chọn Next
+
+PAGE 108
+Chọn tài khoản mật khẩu cho subcribers
+bấm …, chọn run continously
+
+PAGE 109
+Đăng nhập tài khoản, mật khẩu, chọn ok
+Tích “Initialize”, chọn “next”
+Chọn next
+
+PAGE 110
+Chọn finish
+Hình ảnh trước khi nhân bản, chỉ có 3 table.
+
+PAGE 111
+Hình ảnh sau khi nhân bản, có 7 table.
+Làm tương tự các trụ sở khác Với cách làm tương tự như vậy ta đã hoàn toàn phân 
+tán được dữ liệu đến các server, mỗi server đều đã nhận được database tương ứng
+
+PAGE 112
+ 
+ 
+PHẦN 5: TRIGGRERS
+Để phân chia dữ liệu một cách có chọn lọc và tự động update dữ liệu về
+các trạm khi có sự thay đổi từ phía Server, trạm Hà Nội chỉ có quyền xem
+thông tin nhân viên, khách hàng, vé tại Hà Nội, trạm Tp HCM chỉ có quyền
+xem thông tin nhân viên, khách hàng, vé tại Tp HCM nhóm sử dụng Trigger để xử 
+lí vấn đề này
+Trigger là một thủ tục nội tại được thực thi ở phía Server khi có một sự
+kiện xảy ra như Insert, Delete hay Update. Khi một trong các hành động cập
+nhật trên thì thủ tục trigger sẽ tự động được thực hiện 
+5.1. Một số Triggers sử dụng trên máy trạm
+Giả sử ta đang ở một trạm có tên là NA (thuộc trụ sở có ID là SBNA )
+1. Một số Trigger được sử dụng để phân mảng dữ liệu trên mỗi trạm
+●Trigger bảng employee tại site Tp HCM
+❖Ý tưởng tạo bảng update_employee sau đó kiểm tra trong bảng 
+đó nếu không có hàng nào thì đưa ra bảng không có dữ liệu. Nếu 
+bảng có dữ liệu kiểm tra trong id có là chuỗi mà có “HC" thì cập 
+nhật thành công ngược lại đưa ra thông báo cập nhật thất bại.
+CREATE TRIGGER 
+ON 
+[dbo].[update_employee] 
+[dbo].employee
+AFTER INSERT, UPDATE
+AS
+DECLARE @id varchar(50)
+SET 
+SELECT 
+FROM 
+@id = (
+ID 
+inserted)
+If(@@ROWCOUNT = )
+0
+BEGIN
+Print (N'Table này Không có dữ liệu')
+Return
+END
+IF (@id like 
+)
+'%HC%'
+BEGIN
+PRINT (N'Cập nhật thông tin thành công')
+END
+ELSE
+BEGIN
+PRINT (N'Cập nhật thông tin thất bại')
+RAISERROR(
+,
+N'Lỗi Nhập mã ID_employee không có dạng HC', 16
+1)
+ROLLBACK TRAN
+
+PAGE 113
+ 
+END
+GO 
+●Trigger bảng ticket tại site Tp HCM: 
+❖Ý tưởng: Do trong bảng ticket thì ID của vé không có phân tên 
+sân bay nên ta sẽ cập nhật vào site Tp HCM thông qua việc kiểm 
+tra ký tự  customer_id 
+CREATE TRIGGER 
+ON 
+[dbo].[update_ticket] 
+[dbo].ticket
+AFTER INSERT, UPDATE
+AS
+DECLARE @Customer_id varchar(
+)
+50
+SET 
+SELECT 
+FROM 
+@Customer_id  = (
+customer_id  
+inserted)
+If(@@ROWCOUNT = )
+0
+BEGIN
+Print (N'Table này Không có dữ liệu')
+Return
+END
+IF (@ Customer_id like 
+)
+'%hc%'
+BEGIN
+PRINT (N'Cập nhật thông tin thành công')
+END
+ELSE
+BEGIN
+PRINT (N'Cập nhật thông tin thất bại')
+RAISERROR(N'Lỗi Nhập mã ID_Customer không có dạng hc’16, 
+1)
+ROLLBACK TRAN
+END
+GO 
+Ví dụ update thành công:
+INSERT [dbo].[ticket]([ID],[flight_id],[customer_id],[ticket_type],
+[rest_quantity],[employee_id],[ticket_price]) VALUES 
+(N'ticket01',N'cb_01_01',N'kh_hc_03',N'economy',N'12',N'NVHC_02',N'20000
+0')
+GO
+
+PAGE 114
+ 
+●Trigger bảng customer tại site Tp HCM
+❖Ý tưởng: Ý tưởng tạo bảng update_customer sau đó kiểm tra trong 
+bảng đó nếu không có hàng nào thì đưa ra bảng không có dữ liệu. 
+Nếu bảng có dữ liệu kiểm tra trong id có là chuỗi mà có “hc" thì cập 
+nhật thành công ngược lại đưa ra thông báo cập nhật thất bại.
+CREATE TRIGGER 
+ON 
+[dbo].[update_customer] 
+[dbo].customer
+AFTER INSERT, UPDATE
+AS
+DECLARE @Customer_id varchar(
+)
+50
+SET 
+SELECT 
+FROM 
+@Customer_id  = (
+ID  
+inserted)
+If(@@ROWCOUNT = )
+0
+BEGIN
+Print (N'Table này Không có dữ liệu')
+Return
+END
+IF (@ Customer_id like 
+)
+'%hc%'
+BEGIN
+PRINT (N'Cập nhật thông tin thành công')
+END
+ELSE
+BEGIN
+PRINT (N'Cập nhật thông tin thất bại')
+RAISERROR(N'Lỗi Nhập mã ID_Customer không có dạng hc’16, 
+1)
+ROLLBACK TRAN
+END
+GO 
+2.Một số trigger để kiểm tra việc thêm mới, sửa dữ liệu trên máy chủ
+
+PAGE 115
+ 
+●Trigger kiểm tra update and delete từ bảng airport. Nếu máy bay đang có 
+sử dụng trong chuyến bay thì không được xóa hoặc sửa 
+❖Ý tưởng là mình lấy mã trong deleted so sánh với các mã plane_id 
+trong bảng flight sau đó đếm số lượng mã khớp nhau nếu như mà số 
+mã khớp nhau bằng không thì suy ra không có máy bay nào đang 
+hoạt động suy ra cập nhật thành công , ngược lại là không thành 
+công
+CREATE TRIGGER 
+ON 
+[dbo].[kt1_plane] 
+[dbo].plane
+AFTER DELETE
+AS
+DECLARE @c int , @ma nvarchar(50)
+SET 
+SELECT 
+FROM 
+@ma  = (
+ID  
+deleted)
+SET 
+SELECT 
+FROM 
+@c  = (
+count(*)  
+[dbo].[flight] WHERE 
+@ma=plane_id )
+IF (@ c=0)
+BEGIN
+PRINT (N'Cập nhật thông tin thành công')
+END
+ELSE
+BEGIN
+PRINT (N'Cập nhật thông tin thất bại')
+RAISERROR(N’ Lỗi không thể xóa máy bay đang trong chuyến 
+bay’
+1
+,16, )
+ROLLBACK TRAN
+END
+GO 
+❖Ý tưởng là mình lấy mã trong updated so sánh với các mã plane_id 
+trong bảng flight sau đó đếm số lượng mã khớp nhau nếu như mà số 
+mã khớp nhau bằng không thì suy ra không có máy bay nào đang hoạt
+động suy ra cập nhật thành công , ngược lại là không thành công
+CREATE TRIGGER 
+ON 
+[dbo].[kt2_plane] 
+[dbo].plane
+AFTER UPDATE
+AS
+DECLARE @c int , @ma nvarchar(50)
+SET 
+SELECT 
+FROM 
+@ma  = (
+ID  
+deleted)
+
+PAGE 116
+ 
+SET 
+SELECT 
+FROM 
+@c  = (
+count(*)  
+[dbo].[flight] WHERE 
+@ma=plane_id )
+IF (@ c=0)
+BEGIN
+PRINT (N'Cập nhật thông tin thành công')
+END
+ELSE
+BEGIN
+PRINT (N'Cập nhật thông tin thất bại')
+RAISERROR(N’ Lỗi không thể cập nhật máy bay đang trong 
+chuyến bay’,16, 1)
+ROLLBACK TRAN
+END
+GO 
+●Trigger kiểm tra update and delete từ bảng máy bay. Nếu máy bay đang
+có sử dụng trong chuyến bay thì không được xóa hoặc sửa
+❖Ý tưởng là mình lấy mã trong deleted so sánh với các mã 
+depart_time hoặc arrive_time trong bảng flight sau đó đếm số lượng 
+mã khớp nhau nếu như mà số mã khớp nhau bằng không thì suy ra 
+không có máy bay nào đang hoạt động suy ra cập nhập thành công , 
+ngược lại là không thành công
+CREATE TRIGGER 
+ON 
+[dbo].[kt3_plane] 
+[dbo].plane
+AFTER UPDATE
+AS
+DECLARE @c int , @ma nvarchar(50)
+SET 
+SELECT 
+FROM 
+@ma  = (
+ID  
+deleted)
+SET 
+SELECT 
+FROM 
+@c  = (
+count(*)  
+[dbo].[flight] WHERE 
+@ma=depart_time or @ma=arrive_time )
+IF (@ c=0)
+BEGIN
+PRINT (N'Cập nhật thông tin thành công')
+END
+ELSE
+BEGIN
+PRINT (N'Cập nhật thông tin thất bại')
+
+PAGE 117
+RAISERROR(N’ Lỗi không thể cập nhật máy bay đang trong 
+chuyến bay’,16, 1)
+ROLLBACK TRAN
+END
+GO 
+CREATE TRIGGER 
+ON 
+[dbo].[kt3_plane] 
+[dbo].plane
+AFTER DELETE
+AS
+DECLARE @c int , @ma nvarchar(50)
+SET 
+SELECT 
+FROM 
+@ma  = (
+ID  
+updated)
+SET 
+SELECT 
+FROM 
+@c  = (
+count(*)  
+[dbo].[flight] WHERE 
+@ma=depart_time or @ma=arrive_time )
+IF (@ c=0)
+BEGIN
+PRINT (N'Cập nhật thông tin thành công')
+END
+ELSE
+BEGIN
+PRINT (N'Cập nhật thông tin thất bại')
+RAISERROR(N’ Lỗi không thể cập nhật máy bay đang trong 
+chuyến bay’,16, 1)
+ROLLBACK TRAN
+END
+GO 
+❖Ý tưởng là mình lấy mã trong deleted so sánh với các mã 
+depart_time hoặc arrive_time trong bảng flight sau đó đếm số lượng 
+mã khớp nhau nếu như mà số mã khớp nhau bằng không thì suy ra 
+không có máy bay nào đang hoạt động suy ra cập nhập thành công , 
+ngược lại là không thành công
+CREATE TRIGGER 
+ON 
+[dbo].[kt4_plane] 
+[dbo].plane
+AFTER DELETE
+AS
+DECLARE @c int , @ma nvarchar(50)
+SET 
+SELECT 
+FROM 
+@ma  = (
+ID  
+deleted)
+SET 
+SELECT 
+FROM 
+@c  = (
+count(*)  
+[dbo].[flight] WHERE 
+@ma=depart_time or @ma=arrive_time )
+
+PAGE 118
+IF (@ c=0)
+BEGIN
+PRINT (N'Cập nhật thông tin thành công')
+END
+ELSE
+BEGIN
+PRINT (N'Cập nhật thông tin thất bại')
+RAISERROR(N’ Lỗi không thể cập nhật máy bay đang trong 
+chuyến bay’,16, 1)
+ROLLBACK TRAN
+END
+GO 
+CREATE TRIGGER 
+ON 
+[dbo].[kt3_plane] 
+[dbo].plane
+AFTER DELETE
+AS
+DECLARE @c int , @ma nvarchar(50)
+SET 
+SELECT 
+FROM 
+@ma  = (
+ID  
+deleted)
+SET 
+SELECT 
+FROM 
+@c  = (
+count(*)  
+[dbo].[flight] WHERE 
+@ma=depart_time or @ma=arrive_time )
+IF (@ c=0)
+BEGIN
+PRINT (N'Cập nhật thông tin thành công')
+END
+ELSE
+BEGIN
+PRINT (N'Cập nhật thông tin thất bại')
+RAISERROR(N’ Lỗi không thể xoá máy bay đang trong chuyến 
+bay’
+1
+,16, )
+ROLLBACK TRAN
+END
+GO 
+
+PAGE 119
