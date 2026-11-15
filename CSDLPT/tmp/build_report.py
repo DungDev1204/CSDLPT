@@ -1,7 +1,7 @@
 from pathlib import Path
 import sys, math, re, json
 sys.path.insert(0,str(Path(__file__).parent))
-from revised_content import PAGES, MEMBERS
+from sql_aligned_content import PAGES, MEMBERS
 from PIL import Image, ImageDraw, ImageFont
 from docx import Document
 from docx.shared import Cm, Pt, RGBColor, Inches
@@ -63,8 +63,8 @@ im.save(ASSET/'erd.png')
 
 im,d=canvas(1450,750)
 box(d,(470,40,980,250),'S0 Trung tâm Hà Nội\nAirCore nguồn nghiệp vụ\nAirReporting nhận báo cáo',size=28)
-for x,name in [(30,'S1 Hà Nội HN'),(530,'S2 Đà Nẵng DN'),(1030,'S3 TP Hồ Chí Minh HCM')]:
-    box(d,(x,490,x+390,700),name+'\nAirBranch nguồn đơn\nAirReference bản sao',size=24)
+for x,name,code in [(30,'S1 Hà Nội','HN'),(530,'S2 Đà Nẵng','DN'),(1030,'S3 TP Hồ Chí Minh','HCM')]:
+    box(d,(x,490,x+390,700),name+' '+code+'\nAirBranch_'+code+' nguồn đơn\nAirReference_'+code+' bản sao',size=22)
     arrow(d,(650,250),(x+125,490),fill='#2D7392')
     arrow(d,(x+200,490),(725,250),fill='#2D7392',width=3)
     arrow(d,(x+265,490),(800,250),fill='#172D3E',dashed=True)
