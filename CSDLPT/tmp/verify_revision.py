@@ -4,7 +4,7 @@ from collections import Counter
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import pymupdf
 from docx import Document
-from revised_content import PAGES, ASSIGNMENTS, MEMBERS
+from sql_aligned_content import PAGES, ASSIGNMENTS, MEMBERS
 root=Path(__file__).resolve().parent.parent
 pdf=pymupdf.open(root/'output/Bao_cao_CSDLPT_Nhom_8.pdf')
 doc=Document(root/'output/Bao_cao_CSDLPT_Nhom_8.docx')
